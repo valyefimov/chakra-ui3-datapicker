@@ -9,6 +9,8 @@ export const datePickerAnatomy = anatomy('date-picker').parts(
   'trigger',
   'content',
   'header',
+  'navButton',
+  'monthLabel',
   'month',
   'year',
   'calendar',
@@ -27,18 +29,22 @@ const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpe
 
 const baseStyle = definePartsStyle((props) => {
   const { colorScheme = 'teal', theme } = props;
-  const bg = mode('white', 'gray.800')(props);
-  const border = mode('gray.200', 'whiteAlpha.300')(props);
-  const placeholder = mode('gray.500', 'whiteAlpha.600')(props);
-  const text = mode('gray.700', 'gray.100')(props);
-  const hoverDay = mode('gray.100', 'whiteAlpha.200')(props);
-  const selectedBg = mode(`${colorScheme}.500`, `${colorScheme}.300`)(props);
-  const selectedColor = mode('white', 'gray.900')(props);
+  const surface = mode('white', '#0f1014')(props);
+  const surfaceMuted = mode('gray.100', 'rgba(255, 255, 255, 0.06)')(props);
+  const border = mode('gray.200', 'rgba(255, 255, 255, 0.08)')(props);
+  const borderSoft = mode('gray.100', 'rgba(255, 255, 255, 0.06)')(props);
+  const placeholder = mode('gray.500', 'rgba(244, 244, 245, 0.68)')(props);
+  const text = mode('gray.800', 'rgba(244, 244, 245, 0.97)')(props);
+  const textMuted = mode('gray.600', 'rgba(244, 244, 245, 0.68)')(props);
+  const textSubtle = mode('gray.500', 'rgba(244, 244, 245, 0.42)')(props);
+  const hoverBg = mode('gray.100', 'rgba(244, 244, 245, 0.1)')(props);
+  const selectedBg = mode(`${colorScheme}.500`, 'rgba(244, 244, 245, 0.24)')(props);
+  const selectedColor = mode('white', 'rgba(244, 244, 245, 0.92)')(props);
   const rangeBg = mode(
     `${colorScheme}.100`,
-    transparentize(`${colorScheme}.300`, 0.65)(theme),
+    transparentize('white', 0.88)(theme),
   )(props);
-  const todayBorder = mode(`${colorScheme}.500`, `${colorScheme}.300`)(props);
+  const todayBorder = mode(`${colorScheme}.500`, 'rgba(244, 244, 245, 0.18)')(props);
 
   return {
     root: {
@@ -49,17 +55,22 @@ const baseStyle = definePartsStyle((props) => {
     control: {
       display: 'flex',
       alignItems: 'center',
-      gap: 2,
+      gap: 3,
       borderWidth: '1px',
-      borderColor: border,
-      borderRadius: 'md',
-      px: 3,
-      py: 2,
+      borderColor: borderSoft,
+      borderRadius: '2xl',
+      px: 4,
+      py: 3,
+      bg: surface,
       transitionProperty: 'common',
       transitionDuration: 'normal',
+      _hover: { borderColor: mode('gray.300', 'rgba(244, 244, 245, 0.22)')(props) },
       _focusWithin: {
-        borderColor: `${colorScheme}.500`,
-        boxShadow: `0 0 0 1px var(--chakra-colors-${colorScheme}-500)`,
+        borderColor: mode(`${colorScheme}.500`, 'rgba(148, 163, 184, 0.45)')(props),
+        boxShadow: mode(
+          `0 0 0 1px var(--chakra-colors-${colorScheme}-500)`,
+          '0 0 0 1px rgba(148, 163, 184, 0.45)',
+        )(props),
       },
     },
     input: {
@@ -76,13 +87,14 @@ const baseStyle = definePartsStyle((props) => {
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 'md',
+      borderRadius: 'lg',
       px: 2,
-      py: 1,
-      color: mode('gray.600', 'gray.300')(props),
-      transitionProperty: 'background, color, transform',
+      py: 1.5,
+      color: textMuted,
+      bg: surfaceMuted,
+      transitionProperty: 'background, color',
       transitionDuration: 'fast',
-      _hover: { color: mode('gray.800', 'whiteAlpha.900')(props) },
+      _hover: { color: text, bg: hoverBg },
       _active: { transform: 'translateY(1px)' },
       _focusVisible: {
         outline: 'none',
@@ -91,62 +103,85 @@ const baseStyle = definePartsStyle((props) => {
     },
     content: {
       mt: 2,
-      bg,
+      bg: surface,
       borderWidth: '1px',
       borderColor: border,
-      borderRadius: 'lg',
-      boxShadow: 'xl',
-      p: 4,
+      borderRadius: '3xl',
+      boxShadow: mode('xl', '0 32px 70px rgba(2, 6, 23, 0.6)')(props),
+      px: 7,
+      py: 7,
       zIndex: 'dropdown',
-      minW: 'xs',
+      minW: 'sm',
     },
     header: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       w: 'full',
-      mb: 3,
-      gap: 2,
+      mb: 5,
+      gap: 3,
+    },
+    navButton: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      w: 10,
+      h: 10,
+      borderRadius: 'full',
+      color: text,
+      bg: 'transparent',
+      transitionProperty: 'background, color, transform',
+      transitionDuration: 'fast',
+      _hover: { bg: hoverBg },
+      _active: { transform: 'translateY(1px)' },
+      _focusVisible: {
+        outline: 'none',
+        boxShadow: `0 0 0 2px var(--chakra-colors-${colorScheme}-200)`,
+      },
+    },
+    monthLabel: {
+      flex: 1,
+      textAlign: 'center',
+      fontSize: 'xl',
+      fontWeight: 'semibold',
+      letterSpacing: '-0.01em',
+      color: text,
     },
     month: {
-      borderRadius: 'md',
-      fontSize: 'sm',
-      px: 2,
-      py: 1,
-      bg: mode('gray.50', 'whiteAlpha.100')(props),
-      borderWidth: '1px',
-      borderColor: border,
-      cursor: 'pointer',
-      _focusVisible: {
-        boxShadow: `0 0 0 2px var(--chakra-colors-${colorScheme}-200)`,
-      },
+      position: 'absolute',
+      w: '1px',
+      h: '1px',
+      p: 0,
+      m: '-1px',
+      overflow: 'hidden',
+      clip: 'rect(0, 0, 0, 0)',
+      whiteSpace: 'nowrap',
+      border: '0',
     },
     year: {
-      borderRadius: 'md',
-      fontSize: 'sm',
-      px: 2,
-      py: 1,
-      bg: mode('gray.50', 'whiteAlpha.100')(props),
-      borderWidth: '1px',
-      borderColor: border,
-      cursor: 'pointer',
-      _focusVisible: {
-        boxShadow: `0 0 0 2px var(--chakra-colors-${colorScheme}-200)`,
-      },
+      position: 'absolute',
+      w: '1px',
+      h: '1px',
+      p: 0,
+      m: '-1px',
+      overflow: 'hidden',
+      clip: 'rect(0, 0, 0, 0)',
+      whiteSpace: 'nowrap',
+      border: '0',
     },
     calendar: {
       display: 'flex',
       flexDirection: 'column',
-      gap: 2,
+      gap: 4,
     },
     weekdays: {
       display: 'grid',
       gridTemplateColumns: 'repeat(7, 1fr)',
-      gap: 1,
+      gap: 2,
       fontSize: 'xs',
       textTransform: 'uppercase',
       letterSpacing: 'widest',
-      color: mode('gray.500', 'gray.400')(props),
+      color: textSubtle,
     },
     weekday: {
       textAlign: 'center',
@@ -155,18 +190,21 @@ const baseStyle = definePartsStyle((props) => {
     grid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(7, 1fr)',
-      gap: 1,
+      gap: 2,
     },
     day: {
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 'md',
+      borderRadius: 'full',
       h: 10,
+      minW: 10,
       fontWeight: 'medium',
+      fontSize: 'sm',
       transitionProperty: 'common',
       transitionDuration: 'fast',
-      _hover: { bg: hoverDay },
+      color: text,
+      _hover: { bg: hoverBg },
       _focusVisible: {
         boxShadow: `0 0 0 2px var(--chakra-colors-${colorScheme}-200)`,
       },
@@ -177,53 +215,57 @@ const baseStyle = definePartsStyle((props) => {
       '&[data-selected="true"]': {
         bg: selectedBg,
         color: selectedColor,
-        _hover: { bg: selectedBg },
+        boxShadow: mode('none', 'inset 0 -2px 0 0 rgba(244, 244, 245, 0.7)')(props),
       },
       '&[data-in-range="true"]': {
         bg: rangeBg,
-        color: mode(`${colorScheme}.800`, 'white')(props),
+        color: mode(`${colorScheme}.800`, text)(props),
       },
       '&[data-today="true"]': {
         borderWidth: '1px',
         borderColor: todayBorder,
       },
       '&[data-outside="true"]': {
-        color: mode('gray.400', 'whiteAlpha.500')(props),
+        color: mode('gray.400', textSubtle)(props),
       },
     },
     time: {
-      mt: 4,
+      mt: 6,
       alignItems: 'center',
     },
     timeInput: {
       flex: 1,
       maxW: '8rem',
-      borderRadius: 'md',
+      borderRadius: 'lg',
       borderWidth: '1px',
-      borderColor: border,
+      borderColor: borderSoft,
       px: 3,
       py: 2,
       bg: 'transparent',
+      color: text,
+      _placeholder: { color: textMuted },
       _focusVisible: {
         boxShadow: `0 0 0 2px var(--chakra-colors-${colorScheme}-200)`,
       },
     },
     footer: {
-      mt: 4,
+      mt: 6,
+      justifyContent: 'space-between',
+      alignItems: 'center',
     },
   };
 });
 
 const sizes = {
   sm: definePartsStyle({
-    control: { py: 1.5, px: 2, borderRadius: 'md' },
-    content: { p: 3 },
-    day: { h: 8, fontSize: 'sm' },
+    control: { py: 2, px: 3, borderRadius: 'lg' },
+    content: { p: 4 },
+    day: { h: 9, fontSize: 'sm' },
   }),
   md: definePartsStyle({}),
   lg: definePartsStyle({
-    control: { py: 2.5, px: 3 },
-    content: { p: 5 },
+    control: { py: 4, px: 5 },
+    content: { p: 7 },
     day: { h: 12, fontSize: 'md' },
   }),
 };

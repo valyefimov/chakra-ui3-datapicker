@@ -17,9 +17,9 @@ const ControlledDatePicker = () => {
   return (
     <Box>
       <Heading as="h3" size="sm" mb={2}>
-        Controlled date with time selection
+        Controlled date
       </Heading>
-      <DatePicker value={value} onChange={(next) => setValue(next as Date)} enableTimeSelection>
+      <DatePicker value={value} onChange={(next) => setValue(next as Date)}>
         <DatePicker.Control>
           <DatePicker.Input />
           <DatePicker.Trigger aria-label="Open calendar">

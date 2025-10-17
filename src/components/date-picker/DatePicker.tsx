@@ -1,5 +1,5 @@
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
-import { Button, chakra, HStack, IconButton, Text } from '@chakra-ui/react';
+import { Button, chakra, HStack, Text } from '@chakra-ui/react';
 import type { SystemStyleObject } from '@chakra-ui/react';
 import { cx } from '@chakra-ui/utils';
 import { mergeRefs } from '@chakra-ui/react-use-merge-refs';
@@ -20,6 +20,8 @@ const DATE_PICKER_SLOTS = [
   'trigger',
   'content',
   'header',
+  'navButton',
+  'monthLabel',
   'month',
   'year',
   'calendar',
@@ -35,14 +37,19 @@ const DATE_PICKER_SLOTS = [
 type DatePickerSlot = (typeof DATE_PICKER_SLOTS)[number];
 type DatePickerStyles = Record<DatePickerSlot, SystemStyleObject>;
 
-const ACCENT = 'var(--chakra-colors-teal-500, #319795)';
-const ACCENT_LIGHT = 'var(--chakra-colors-teal-100, rgba(56, 178, 172, 0.35))';
-const SURFACE = 'var(--chakra-colors-bg, var(--chakra-colors-white, #ffffff))';
-const SURFACE_MUTED = 'var(--chakra-colors-bg-muted, rgba(247, 250, 252, 1))';
-const SURFACE_ELEVATED = 'var(--chakra-colors-bg-elevated, #ffffff)';
-const BORDER = 'var(--chakra-colors-border, rgba(203, 213, 225, 0.8))';
-const TEXT = 'var(--chakra-colors-fg, #1a202c)';
-const TEXT_MUTED = 'var(--chakra-colors-fg-muted, rgba(100, 116, 139, 1))';
+const SURFACE = 'var(--chakra-colors-gray-900, #0f1014)';
+const SURFACE_MUTED = 'rgba(255, 255, 255, 0.06)';
+const SURFACE_ELEVATED = 'var(--chakra-colors-gray-900, #0f1014)';
+const BORDER = 'rgba(255, 255, 255, 0.08)';
+const BORDER_SOFT = 'rgba(255, 255, 255, 0.06)';
+const TEXT = 'rgba(244, 244, 245, 0.97)';
+const TEXT_MUTED = 'rgba(244, 244, 245, 0.68)';
+const TEXT_SUBTLE = 'rgba(244, 244, 245, 0.42)';
+const ACCENT = 'rgba(244, 244, 245, 0.92)';
+const ACCENT_LIGHT = 'rgba(244, 244, 245, 0.24)';
+const RANGE_BG = 'rgba(244, 244, 245, 0.12)';
+const HOVER_BG = 'rgba(244, 244, 245, 0.1)';
+const SHADOW = '0px 32px 70px rgba(2, 6, 23, 0.6)';
 
 const defaultStyles: DatePickerStyles = {
   root: {
@@ -53,17 +60,20 @@ const defaultStyles: DatePickerStyles = {
   control: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    border: `1px solid ${BORDER}`,
-    borderRadius: '0.75rem',
-    paddingInline: '0.75rem',
-    paddingBlock: '0.5rem',
+    gap: '0.75rem',
+    border: `1px solid ${BORDER_SOFT}`,
+    borderRadius: '1rem',
+    paddingInline: '1.1rem',
+    paddingBlock: '0.7rem',
     background: SURFACE,
     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
     cursor: 'pointer',
+    '&:hover': {
+      borderColor: 'rgba(244, 244, 245, 0.22)',
+    },
     '&:focus-within': {
-      borderColor: ACCENT,
-      boxShadow: `0 0 0 1px ${ACCENT}`,
+      borderColor: 'rgba(148, 163, 184, 0.42)',
+      boxShadow: '0 0 0 1px rgba(148, 163, 184, 0.42)',
     },
   },
   input: {
@@ -86,13 +96,15 @@ const defaultStyles: DatePickerStyles = {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: '0.5rem',
+    borderRadius: '0.625rem',
     paddingInline: '0.5rem',
-    paddingBlock: '0.25rem',
+    paddingBlock: '0.35rem',
     color: TEXT_MUTED,
-    transition: 'color 0.2s ease, transform 0.2s ease',
+    background: SURFACE_MUTED,
+    transition: 'background 0.2s ease, color 0.2s ease',
     '&:hover': {
       color: TEXT,
+      background: HOVER_BG,
     },
     '&:focus-visible': {
       outline: 'none',
@@ -100,51 +112,87 @@ const defaultStyles: DatePickerStyles = {
     },
   },
   content: {
-    marginTop: '0.5rem',
+    marginTop: '0.75rem',
     background: SURFACE_ELEVATED,
     border: `1px solid ${BORDER}`,
-    borderRadius: '1rem',
-    boxShadow: '0px 20px 45px rgba(15, 23, 42, 0.15)',
-    padding: '1rem',
-    minWidth: '18rem',
+    borderRadius: '1.5rem',
+    boxShadow: SHADOW,
+    paddingInline: '1.75rem',
+    paddingBlock: '1.9rem',
+    minWidth: '21rem',
   },
   header: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: '0.5rem',
+    gap: '0.75rem',
     width: '100%',
-    marginBottom: '0.75rem',
+    marginBottom: '1.25rem',
+  },
+  navButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '2.5rem',
+    height: '2.5rem',
+    borderRadius: '999px',
+    color: TEXT,
+    background: 'transparent',
+    transition: 'background 0.2s ease, color 0.2s ease, transform 0.2s ease',
+    '&:hover': {
+      background: HOVER_BG,
+    },
+    '&:active': {
+      transform: 'translateY(1px)',
+    },
+    '&:focus-visible': {
+      outline: 'none',
+      boxShadow: `0 0 0 2px ${ACCENT_LIGHT}`,
+    },
+  },
+  monthLabel: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: '1.35rem',
+    fontWeight: 600,
+    letterSpacing: '-0.01em',
+    color: TEXT,
   },
   month: {
-    borderRadius: '0.5rem',
-    fontSize: '0.875rem',
-    paddingInline: '0.5rem',
-    paddingBlock: '0.25rem',
-    border: `1px solid ${BORDER}`,
-    background: SURFACE_MUTED,
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: 0,
+    margin: '-1px',
+    overflow: 'hidden',
+    clip: 'rect(0, 0, 0, 0)',
+    whiteSpace: 'nowrap',
+    border: 0,
   },
   year: {
-    borderRadius: '0.5rem',
-    fontSize: '0.875rem',
-    paddingInline: '0.5rem',
-    paddingBlock: '0.25rem',
-    border: `1px solid ${BORDER}`,
-    background: SURFACE_MUTED,
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: 0,
+    margin: '-1px',
+    overflow: 'hidden',
+    clip: 'rect(0, 0, 0, 0)',
+    whiteSpace: 'nowrap',
+    border: 0,
   },
   calendar: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.5rem',
+    gap: '1rem',
   },
   weekdays: {
     display: 'grid',
     gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
-    gap: '0.25rem',
-    fontSize: '0.625rem',
+    gap: '0.6rem',
+    fontSize: '0.7rem',
     textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    color: TEXT_MUTED,
+    letterSpacing: '0.14em',
+    color: TEXT_SUBTLE,
   },
   weekday: {
     textAlign: 'center',
@@ -153,47 +201,50 @@ const defaultStyles: DatePickerStyles = {
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
-    gap: '0.25rem',
+    gap: '0.6rem',
   },
   day: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: '0.5rem',
-    height: '2.5rem',
+    borderRadius: '999px',
+    width: '2.6rem',
+    height: '2.6rem',
     fontWeight: 500,
+    fontSize: '0.95rem',
     transition: 'background 0.2s ease, color 0.2s ease, transform 0.2s ease',
     border: '1px solid transparent',
     cursor: 'pointer',
+    color: TEXT,
     '&:hover': {
-      background: 'rgba(148, 163, 184, 0.2)',
+      background: HOVER_BG,
     },
     '&:focus-visible': {
       outline: 'none',
       boxShadow: `0 0 0 2px ${ACCENT_LIGHT}`,
     },
     '&[data-selected="true"]': {
-      background: ACCENT,
-      color: 'var(--chakra-colors-white, #fff)',
-      borderColor: ACCENT,
+      background: ACCENT_LIGHT,
+      color: ACCENT,
+      boxShadow: 'inset 0 -2px 0 0 rgba(244, 244, 245, 0.7)',
     },
     '&[data-in-range="true"]': {
-      background: ACCENT_LIGHT,
+      background: RANGE_BG,
       color: TEXT,
     },
     '&[data-today="true"]': {
-      borderColor: ACCENT,
+      borderColor: ACCENT_LIGHT,
     },
     '&[data-outside="true"]': {
-      color: TEXT_MUTED,
+      color: TEXT_SUBTLE,
     },
     '&[disabled]': {
-      opacity: 0.4,
+      opacity: 0.3,
       cursor: 'not-allowed',
     },
   },
   time: {
-    marginTop: '1rem',
+    marginTop: '1.5rem',
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
@@ -201,23 +252,28 @@ const defaultStyles: DatePickerStyles = {
   timeInput: {
     flex: 1,
     maxWidth: '8rem',
-    borderRadius: '0.5rem',
-    border: `1px solid ${BORDER}`,
+    borderRadius: '0.75rem',
+    border: `1px solid ${BORDER_SOFT}`,
     paddingInline: '0.75rem',
     paddingBlock: '0.5rem',
     background: SURFACE,
+    color: TEXT,
     fontVariantNumeric: 'tabular-nums',
+    '&::placeholder': {
+      color: TEXT_MUTED,
+    },
     '&:focus-visible': {
       outline: 'none',
-      borderColor: ACCENT,
-      boxShadow: `0 0 0 2px ${ACCENT_LIGHT}`,
+      borderColor: 'rgba(148, 163, 184, 0.45)',
+      boxShadow: '0 0 0 1px rgba(148, 163, 184, 0.45)',
     },
   },
   footer: {
-    marginTop: '1rem',
+    marginTop: '1.5rem',
     display: 'flex',
-    justifyContent: 'flex-end',
-    gap: '0.5rem',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '0.75rem',
   },
 };
 
@@ -572,6 +628,11 @@ export const DatePickerHeader = React.forwardRef<HTMLDivElement, DatePickerHeade
       [api.locale],
     );
 
+    const monthYearFormatter = React.useMemo(
+      () => new Intl.DateTimeFormat(api.locale, { month: 'long', year: 'numeric' }),
+      [api.locale],
+    );
+
     const monthOptions = React.useMemo(
       () =>
         api.monthNames ??
@@ -579,6 +640,11 @@ export const DatePickerHeader = React.forwardRef<HTMLDivElement, DatePickerHeade
           monthFormatter.format(new Date(2020, index, 1)),
         ),
       [api.monthNames, monthFormatter],
+    );
+
+    const monthYearLabel = React.useMemo(
+      () => monthYearFormatter.format(new Date(api.viewYear, api.viewMonth, 1)),
+      [api.viewMonth, api.viewYear, monthYearFormatter],
     );
 
     const yearBounds = React.useMemo(() => {
@@ -605,6 +671,52 @@ export const DatePickerHeader = React.forwardRef<HTMLDivElement, DatePickerHeade
 
     const monthSelectProps = api.getMonthSelectProps();
     const yearSelectProps = api.getYearSelectProps();
+    const prevTriggerProps = api.getPrevTriggerProps();
+    const nextTriggerProps = api.getNextTriggerProps();
+
+    const {
+      ref: prevRefProp,
+      className: prevClassName,
+      style: prevStyle,
+      ...restPrevTrigger
+    } = prevTriggerProps as {
+      ref?: React.Ref<HTMLButtonElement>;
+      className?: string;
+      style?: React.CSSProperties;
+    };
+
+    const {
+      ref: nextRefProp,
+      className: nextClassName,
+      style: nextStyle,
+      ...restNextTrigger
+    } = nextTriggerProps as {
+      ref?: React.Ref<HTMLButtonElement>;
+      className?: string;
+      style?: React.CSSProperties;
+    };
+
+    const {
+      ref: monthRefProp,
+      className: monthClassName,
+      style: monthStyle,
+      ...restMonthSelect
+    } = monthSelectProps as {
+      ref?: React.Ref<HTMLSelectElement>;
+      className?: string;
+      style?: React.CSSProperties;
+    };
+
+    const {
+      ref: yearRefProp,
+      className: yearClassName,
+      style: yearStyle,
+      ...restYearSelect
+    } = yearSelectProps as {
+      ref?: React.Ref<HTMLSelectElement>;
+      className?: string;
+      style?: React.CSSProperties;
+    };
 
     return (
       <chakra.div
@@ -614,48 +726,65 @@ export const DatePickerHeader = React.forwardRef<HTMLDivElement, DatePickerHeade
         style={style}
         {...rest}
       >
-        <HStack justify="space-between" align="center" w="full" gap={2}>
-          <IconButton
-            aria-label="Previous month"
-            size="sm"
-            variant="ghost"
-            {...api.getPrevTriggerProps()}
+        <HStack justify="space-between" align="center" w="full" gap={4}>
+          <chakra.button
+            ref={prevRefProp as React.Ref<HTMLButtonElement>}
+            type="button"
+            className={cx(
+              'chakra-date-picker__nav-button',
+              'chakra-date-picker__nav-button--prev',
+              prevClassName,
+            )}
+            css={styles.navButton}
+            style={prevStyle}
+            {...restPrevTrigger}
           >
             <ChevronLeftIcon />
-          </IconButton>
-          <HStack gap={2} flex="1" justify="center">
-            <chakra.select
-              className="chakra-date-picker__month-select"
-              css={styles.month}
-              {...monthSelectProps}
-            >
-              {monthOptions.map((label, index) => (
-                <option key={label} value={index}>
-                  {label}
-                </option>
-              ))}
-            </chakra.select>
-            <chakra.select
-              className="chakra-date-picker__year-select"
-              css={styles.year}
-              {...yearSelectProps}
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </chakra.select>
-          </HStack>
-          <IconButton
-            aria-label="Next month"
-            size="sm"
-            variant="ghost"
-            {...api.getNextTriggerProps()}
+          </chakra.button>
+          <Text as="span" className="chakra-date-picker__month-label" css={styles.monthLabel}>
+            {monthYearLabel}
+          </Text>
+          <chakra.button
+            ref={nextRefProp as React.Ref<HTMLButtonElement>}
+            type="button"
+            className={cx(
+              'chakra-date-picker__nav-button',
+              'chakra-date-picker__nav-button--next',
+              nextClassName,
+            )}
+            css={styles.navButton}
+            style={nextStyle}
+            {...restNextTrigger}
           >
             <ChevronRightIcon />
-          </IconButton>
+          </chakra.button>
         </HStack>
+        <chakra.select
+          ref={monthRefProp as React.Ref<HTMLSelectElement>}
+          className={cx('chakra-date-picker__month-select', monthClassName)}
+          css={styles.month}
+          style={monthStyle}
+          {...restMonthSelect}
+        >
+          {monthOptions.map((label, index) => (
+            <option key={label} value={index}>
+              {label}
+            </option>
+          ))}
+        </chakra.select>
+        <chakra.select
+          ref={yearRefProp as React.Ref<HTMLSelectElement>}
+          className={cx('chakra-date-picker__year-select', yearClassName)}
+          css={styles.year}
+          style={yearStyle}
+          {...restYearSelect}
+        >
+          {years.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </chakra.select>
       </chakra.div>
     );
   },
@@ -797,10 +926,17 @@ export const DatePickerFooter = React.forwardRef<HTMLDivElement, DatePickerFoote
         style={style}
         {...rest}
       >
-        <Button size="sm" variant="ghost" onClick={() => api.clear()} disabled={!api.hasSelectedDate}>
+        <Button
+          size="sm"
+          variant="ghost"
+          colorScheme="whiteAlpha"
+          opacity={api.hasSelectedDate ? 0.7 : 0.35}
+          onClick={() => api.clear()}
+          disabled={!api.hasSelectedDate}
+        >
           Clear
         </Button>
-        <Button size="sm" colorPalette="teal" onClick={() => api.close()}>
+        <Button size="sm" borderRadius="md" px={5} colorScheme="teal" onClick={() => api.close()}>
           Done
         </Button>
       </chakra.div>
