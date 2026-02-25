@@ -1,5 +1,7 @@
 # Chakra UI v3 Date Picker
 
+> NOTE: This package is still in active development and is not production-ready yet.
+
 A headless-ready, accessible date picker built for Chakra UI v3. The package exposes a composable `DatePicker` component with Chakra-styled slots, a fully typed `useDatePicker` hook, and theming utilities so you can drop rich date selection into any Chakra-powered experience.
 
 > ⚠️ **Chakra UI v3 required.** Earlier Chakra major versions expose different APIs and are not compatible with this package.
