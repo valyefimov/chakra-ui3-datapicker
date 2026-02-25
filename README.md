@@ -16,7 +16,7 @@ A headless-ready, accessible date picker built for Chakra UI v3. The package exp
 ## Installation
 
 ```bash
-npm install chakra-ui3-datepicker @chakra-ui/react @chakra-ui/anatomy @chakra-ui/styled-system @chakra-ui/utils @chakra-ui/react-use-controllable-state
+npm install chakra-ui3-datepicker @chakra-ui/react
 ```
 
 You also need the Chakra UI v3 peer dependencies (`@emotion/react`, `react`, `react-dom`). Follow the [official Chakra UI v3 installation guide](https://next.chakra-ui.com/docs/getting-started) if you are starting from scratch.
@@ -127,9 +127,9 @@ The component provides handcrafted defaults, but you remain in control.
 />
 ```
 
-### 2. Reuse the exported theme helpers
+### 2. Reuse the exported theme config
 
-If you prefer theme-driven customisation, the original multi-part helpers are still exported:
+If you prefer theme-driven customisation, the exported `datePickerTheme` object can be merged into your Chakra system:
 
 ```ts
 // theme/date-picker.ts
@@ -205,4 +205,3 @@ The build command compiles the library via `tsup` (CJS, ESM, and type definition
 ## Contributing
 
 Issues and pull requests are welcome! If you add new features, include accompanying documentation updates and, where possible, unit or visual test coverage. Use `npm run lint` and `npm run typecheck` to keep the codebase healthy, and ensure `npm run build` succeeds before submitting changes.
-

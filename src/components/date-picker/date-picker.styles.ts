@@ -1,8 +1,4 @@
-import { anatomy } from '@chakra-ui/anatomy';
-import { createMultiStyleConfigHelpers } from '@chakra-ui/styled-system';
-import { mode, transparentize } from '@chakra-ui/theme-tools';
-
-export const datePickerAnatomy = anatomy('date-picker').parts(
+const datePickerParts = [
   'root',
   'control',
   'input',
@@ -21,11 +17,55 @@ export const datePickerAnatomy = anatomy('date-picker').parts(
   'time',
   'timeInput',
   'footer',
-);
+] as const;
 
-const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
-  datePickerAnatomy.keys,
-);
+type DatePickerSlot = (typeof datePickerParts)[number];
+
+type StyleObject = Record<string, unknown>;
+type SlotStyles = Partial<Record<DatePickerSlot, StyleObject>>;
+type ColorMode = 'light' | 'dark';
+
+interface DatePickerStyleProps {
+  colorScheme?: string;
+  colorMode?: ColorMode;
+  theme?: unknown;
+}
+
+type SlotStyleConfig = SlotStyles | ((props: DatePickerStyleProps) => SlotStyles);
+
+interface DatePickerThemeConfig {
+  slots: readonly DatePickerSlot[];
+  baseStyle: SlotStyleConfig;
+  sizes: Record<string, SlotStyleConfig>;
+  variants: Record<string, SlotStyleConfig>;
+  defaultProps: {
+    size: string;
+    variant: string;
+    colorScheme: string;
+  };
+}
+
+export const datePickerAnatomy = {
+  keys: datePickerParts,
+};
+
+const definePartsStyle = (style: SlotStyleConfig) => style;
+
+const defineMultiStyleConfig = (
+  config: Omit<DatePickerThemeConfig, 'slots'>,
+): DatePickerThemeConfig => ({
+  ...config,
+  slots: datePickerAnatomy.keys,
+});
+
+const mode = (light: string, dark: string) => (props: DatePickerStyleProps) =>
+  props.colorMode === 'dark' ? dark : light;
+
+const transparentize = (color: string, amount: number) => (_theme?: unknown) => {
+  if (color !== 'white') return color;
+  const alpha = Math.max(0, Math.min(1, 1 - amount));
+  return `rgba(255, 255, 255, ${alpha})`;
+};
 
 const baseStyle = definePartsStyle((props) => {
   const { colorScheme = 'teal', theme } = props;
@@ -38,12 +78,8 @@ const baseStyle = definePartsStyle((props) => {
   const textMuted = mode('gray.600', 'rgba(244, 244, 245, 0.68)')(props);
   const textSubtle = mode('gray.500', 'rgba(244, 244, 245, 0.42)')(props);
   const hoverBg = mode('gray.100', 'rgba(244, 244, 245, 0.1)')(props);
-  const selectedBg = mode(`${colorScheme}.500`, 'rgba(244, 244, 245, 0.24)')(props);
   const selectedColor = mode('white', 'rgba(244, 244, 245, 0.92)')(props);
-  const rangeBg = mode(
-    `${colorScheme}.100`,
-    transparentize('white', 0.88)(theme),
-  )(props);
+  const rangeBg = mode(`${colorScheme}.100`, transparentize('white', 0.88)(theme))(props);
   const todayBorder = mode(`${colorScheme}.500`, 'rgba(244, 244, 245, 0.18)')(props);
 
   return {
@@ -213,9 +249,11 @@ const baseStyle = definePartsStyle((props) => {
         cursor: 'not-allowed',
       },
       '&[data-selected="true"]': {
-        bg: selectedBg,
+        bg: mode(`${colorScheme}.500`, 'rgba(148, 163, 184, 0.3)')(props),
+        borderWidth: '1px',
+        borderColor: mode(`${colorScheme}.600`, 'rgba(244, 244, 245, 0.42)')(props),
         color: selectedColor,
-        boxShadow: mode('none', 'inset 0 -2px 0 0 rgba(244, 244, 245, 0.7)')(props),
+        boxShadow: mode('none', 'inset 0 -1px 0 0 rgba(244, 244, 245, 0.6)')(props),
       },
       '&[data-in-range="true"]': {
         bg: rangeBg,
@@ -224,6 +262,18 @@ const baseStyle = definePartsStyle((props) => {
       '&[data-today="true"]': {
         borderWidth: '1px',
         borderColor: todayBorder,
+        fontWeight: 'semibold',
+      },
+      '&[data-today="true"][data-selected="true"]': {
+        bg: mode(
+          `${colorScheme}.600`,
+          'linear-gradient(180deg, rgba(148, 163, 184, 0.44), rgba(148, 163, 184, 0.3))',
+        )(props),
+        borderColor: mode(`${colorScheme}.700`, 'rgba(244, 244, 245, 0.68)')(props),
+        boxShadow: mode(
+          'none',
+          '0 0 0 1px rgba(244, 244, 245, 0.28), 0 8px 16px rgba(2, 6, 23, 0.3)',
+        )(props),
       },
       '&[data-outside="true"]': {
         color: mode('gray.400', textSubtle)(props),

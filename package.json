@@ -1,7 +1,6 @@
 {
   "name": "chakra-ui3-datepicker",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -29,14 +28,7 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx"
   },
-  "dependencies": {
-    "@chakra-ui/anatomy": "^2.3.4",
-    "@chakra-ui/popper": "^3.1.0",
-    "@chakra-ui/react-use-controllable-state": "^2.1.0",
-    "@chakra-ui/styled-system": "^2.12.0",
-    "@chakra-ui/theme-tools": "^2.2.6",
-    "@chakra-ui/utils": "^2.2.2"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "@chakra-ui/react": "^3.0.0",
     "react": "^18.0.0",

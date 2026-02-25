@@ -1,9 +1,7 @@
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
 import { Button, chakra, HStack, Text } from '@chakra-ui/react';
 import type { SystemStyleObject } from '@chakra-ui/react';
-import { cx } from '@chakra-ui/utils';
-import { mergeRefs } from '@chakra-ui/react-use-merge-refs';
 import React from 'react';
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
 import {
   CalendarDay,
   DatePickerProvider,
@@ -12,6 +10,25 @@ import {
   UseDatePickerProps,
 } from './use-date-picker';
 import type { DatePickerContextValue } from './use-date-picker';
+
+function cx(...classNames: Array<string | false | null | undefined>) {
+  return classNames.filter(Boolean).join(' ');
+}
+
+function mergeRefs<T>(...refs: Array<React.Ref<T> | undefined>) {
+  return (value: T | null) => {
+    refs.forEach((ref) => {
+      if (!ref) return;
+
+      if (typeof ref === 'function') {
+        ref(value);
+        return;
+      }
+
+      (ref as React.MutableRefObject<T | null>).current = value;
+    });
+  };
+}
 
 const DATE_PICKER_SLOTS = [
   'root',
@@ -224,16 +241,23 @@ const defaultStyles: DatePickerStyles = {
       boxShadow: `0 0 0 2px ${ACCENT_LIGHT}`,
     },
     '&[data-selected="true"]': {
-      background: ACCENT_LIGHT,
+      background: 'rgba(148, 163, 184, 0.3)',
+      borderColor: 'rgba(244, 244, 245, 0.42)',
       color: ACCENT,
-      boxShadow: 'inset 0 -2px 0 0 rgba(244, 244, 245, 0.7)',
+      boxShadow: 'inset 0 -1px 0 0 rgba(244, 244, 245, 0.6)',
     },
     '&[data-in-range="true"]': {
       background: RANGE_BG,
       color: TEXT,
     },
     '&[data-today="true"]': {
-      borderColor: ACCENT_LIGHT,
+      borderColor: 'rgba(244, 244, 245, 0.34)',
+      fontWeight: 600,
+    },
+    '&[data-today="true"][data-selected="true"]': {
+      background: 'linear-gradient(180deg, rgba(148, 163, 184, 0.44), rgba(148, 163, 184, 0.3))',
+      borderColor: 'rgba(244, 244, 245, 0.68)',
+      boxShadow: '0 0 0 1px rgba(244, 244, 245, 0.28), 0 8px 16px rgba(2, 6, 23, 0.3)',
     },
     '&[data-outside="true"]': {
       color: TEXT_SUBTLE,
@@ -350,112 +374,108 @@ type DivProps = Omit<React.ComponentPropsWithoutRef<'div'>, 'onChange' | 'defaul
 type ButtonElementProps = React.ComponentPropsWithoutRef<'button'>;
 type InputElementProps = React.ComponentPropsWithoutRef<'input'>;
 
-export interface DatePickerProps
-  extends UseDatePickerProps,
-    Omit<DivProps, 'children'> {
+export interface DatePickerProps extends UseDatePickerProps, Omit<DivProps, 'children'> {
   children?: React.ReactNode;
   yearRange?: { start: number; end: number };
   styles?: Partial<DatePickerStyles>;
 }
 
-export const DatePickerRoot = React.forwardRef<HTMLDivElement, DatePickerProps>(
-  (props, ref) => {
-    const {
-      children,
-      className,
-      styles: stylesProp,
+export const DatePickerRoot = React.forwardRef<HTMLDivElement, DatePickerProps>((props, ref) => {
+  const {
+    children,
+    className,
+    styles: stylesProp,
+    yearRange,
+    style: styleProp,
+    id,
+    isRange,
+    value,
+    defaultValue,
+    onChange,
+    closeOnSelect,
+    openOnFocus,
+    minDate,
+    maxDate,
+    locale,
+    weekStartsOn,
+    isDateUnavailable,
+    allowSameDateSelection,
+    defaultVisibleDate,
+    isOpen,
+    defaultIsOpen,
+    onOpen,
+    onClose,
+    gutter = 8,
+    placement = 'bottom-start',
+    enableTimeSelection = false,
+    timeValue,
+    defaultTimeValue,
+    onTimeChange,
+    ...rest
+  } = props;
+
+  const api = useDatePicker({
+    id,
+    isRange,
+    value,
+    defaultValue,
+    onChange,
+    closeOnSelect,
+    openOnFocus,
+    minDate,
+    maxDate,
+    locale,
+    weekStartsOn,
+    isDateUnavailable,
+    allowSameDateSelection,
+    defaultVisibleDate,
+    isOpen,
+    defaultIsOpen,
+    onOpen,
+    onClose,
+    gutter,
+    placement,
+    enableTimeSelection,
+    timeValue,
+    defaultTimeValue,
+    onTimeChange,
+  });
+
+  const monthNames = React.useMemo(() => {
+    return Array.from({ length: 12 }).map((_, month) =>
+      new Intl.DateTimeFormat(api.locale, { month: 'long' }).format(new Date(2020, month, 1)),
+    );
+  }, [api.locale]);
+
+  const contextValue = React.useMemo<DatePickerContextValue>(
+    () => ({
+      ...api,
       yearRange,
-      style: styleProp,
-      id,
-      isRange,
-      value,
-      defaultValue,
-      onChange,
-      closeOnSelect,
-      openOnFocus,
-      minDate,
-      maxDate,
-      locale,
-      weekStartsOn,
-      isDateUnavailable,
-      allowSameDateSelection,
-      defaultVisibleDate,
-      isOpen,
-      defaultIsOpen,
-      onOpen,
-      onClose,
-      gutter = 8,
-      placement = 'bottom-start',
-      enableTimeSelection = false,
-      timeValue,
-      defaultTimeValue,
-      onTimeChange,
-      ...rest
-    } = props;
+      monthNames,
+    }),
+    [api, monthNames, yearRange],
+  );
 
-    const api = useDatePicker({
-      id,
-      isRange,
-      value,
-      defaultValue,
-      onChange,
-      closeOnSelect,
-      openOnFocus,
-      minDate,
-      maxDate,
-      locale,
-      weekStartsOn,
-      isDateUnavailable,
-      allowSameDateSelection,
-      defaultVisibleDate,
-      isOpen,
-      defaultIsOpen,
-      onOpen,
-      onClose,
-      gutter,
-      placement,
-      enableTimeSelection,
-      timeValue,
-      defaultTimeValue,
-      onTimeChange,
-    });
+  const styles = React.useMemo(() => mergeSlotStyles(stylesProp), [stylesProp]);
+  const combinedClassName = cx('chakra-date-picker', className);
 
-    const monthNames = React.useMemo(() => {
-      return Array.from({ length: 12 }).map((_, month) =>
-        new Intl.DateTimeFormat(api.locale, { month: 'long' }).format(new Date(2020, month, 1)),
-      );
-    }, [api.locale]);
-
-    const contextValue = React.useMemo<DatePickerContextValue>(
-      () => ({
-        ...api,
-        yearRange,
-        monthNames,
-      }),
-      [api, monthNames, yearRange],
-    );
-
-    const styles = React.useMemo(() => mergeSlotStyles(stylesProp), [stylesProp]);
-    const combinedClassName = cx('chakra-date-picker', className);
-
-    return (
-      <DatePickerProvider value={contextValue}>
-        <DatePickerStylesContext.Provider value={styles}>
-          <chakra.div
-            ref={ref}
-            {...api.getRootProps()}
-            {...rest}
-            className={combinedClassName}
-            css={styles.root}
-            style={styleProp}
-          >
-            {children ?? <DatePickerPrimitive />}
-          </chakra.div>
-        </DatePickerStylesContext.Provider>
-      </DatePickerProvider>
-    );
-  },
-);
+  return (
+    <DatePickerProvider value={contextValue}>
+      <DatePickerStylesContext.Provider value={styles}>
+        <chakra.div
+          ref={ref}
+          {...api.getRootProps()}
+          {...rest}
+          className={combinedClassName}
+          css={styles.root}
+          style={styleProp}
+        >
+          {children ?? <DatePickerPrimitive />}
+        </chakra.div>
+      </DatePickerStylesContext.Provider>
+    </DatePickerProvider>
+  );
+});
 DatePickerRoot.displayName = 'DatePickerRoot';
 
 const DatePickerPrimitive = () => (
@@ -815,12 +835,8 @@ export const DatePickerCalendar = React.forwardRef<HTMLDivElement, DatePickerCal
           ))}
         </chakra.div>
         <chakra.div {...api.getCalendarGridProps()} css={styles.grid}>
-          {api.weeks.map((week, weekIndex) => (
-            <chakra.div role="row" key={weekIndex} className="chakra-date-picker__week">
-              {week.map((day) => (
-                <DatePickerDayCell key={day.date.toISOString()} day={day} />
-              ))}
-            </chakra.div>
+          {api.weeks.flat().map((day) => (
+            <DatePickerDayCell key={day.date.toISOString()} day={day} />
           ))}
         </chakra.div>
         {children}

@@ -1,5 +1,4 @@
 import { useDisclosure, useUpdateEffect } from '@chakra-ui/react';
-import { useControllableState } from '@chakra-ui/react-use-controllable-state';
 import React, {
   createContext,
   useCallback,
@@ -10,6 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useControllableState } from './use-controllable-state';
 
 export type DatePickerSelection = Date | null;
 
@@ -398,8 +398,8 @@ export function useDatePicker(props: UseDatePickerProps): UseDatePickerReturn {
   }, [valueProp, defaultValue, isRange]);
 
   const [value, setValue] = useControllableState<DatePickerValue | null>({
-    value: valueProp ?? null,
-    defaultValue: initialValue,
+    value: valueProp,
+    defaultValue: initialValue ?? null,
     onChange: (next) => {
       onChange?.(next as DatePickerValue);
     },
@@ -422,8 +422,8 @@ export function useDatePicker(props: UseDatePickerProps): UseDatePickerReturn {
   }, [timeProp, enableTimeSelection, defaultTimeValue, initialValue]);
 
   const [time, setTime] = useControllableState<string | null>({
-    value: timeProp ?? null,
-    defaultValue: timeInitial,
+    value: timeProp,
+    defaultValue: timeInitial ?? null,
     onChange: (next) => {
       if (next != null) onTimeChange?.(next);
     },
